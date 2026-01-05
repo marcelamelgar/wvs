@@ -1,0 +1,9 @@
+# No subir secretos de conexión
+.streamlit/secrets.toml
+
+# Archivos locales de Python
+__pycache__/
+*.pyc
+
+# Cosas de macOS
+.DS_Store
