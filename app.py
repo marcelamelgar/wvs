@@ -1317,6 +1317,265 @@ def render_categoria_dashboard(agrupacion: str, categoria: str):
             df_spec = df_spec.copy()
             df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_intencion_voto)
 
+        # 8) Si una mujer gana más que su marido es casi seguro que creará problemas
+        elif "si una mujer gana más que su marido es casi seguro que creará problemas" in label_lower:
+            def normalize_problema_ingreso_mujer(v: str) -> str:
+                s = str(v).strip().lower()
+
+                # No sabe / no responde
+                if any(x in s for x in ["no sabe", "no se", "no responde", "ns/nr", "nsnr"]):
+                    return "No sabe / No responde"
+
+                # Neutro
+                if "ni de acuerdo ni en desacuerdo" in s or "ni acuerdo ni desacuerdo" in s:
+                    return "Ni de acuerdo ni en desacuerdo"
+
+                # DESACUERDO 
+                if ("totalmente" in s and "desacuerdo" in s) or ("muy" in s and "desacuerdo" in s):
+                    return "Totalmente en desacuerdo"
+                
+                if "desacuerdo" in s:
+                    return "En desacuerdo"
+
+                # -----------------------------
+                # ACUERDO (UNIFICAR SOLO MUY + TOTALMENTE)
+                # -----------------------------
+                if ("totalmente" in s and "acuerdo" in s) or ("muy" in s and "acuerdo" in s):
+                    return "Totalmente de acuerdo"
+
+                if s == "de acuerdo" or "de acuerdo" in s:
+                    return "De acuerdo"
+
+                return "Otras respuestas"
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_problema_ingreso_mujer)
+
+        # Jobs scarce – Employers should give priority to (nation) people than immigrants
+        elif (
+            "employers should give priority" in label_lower
+            or "jobs scarce" in label_lower
+        ):
+            def normalize_jobs_scarce(v: str) -> str:
+                s = str(v).strip().lower()
+
+                # No sabe / no responde
+                if any(x in s for x in ["no sabe", "no se", "no responde", "ns/nr", "nsnr"]):
+                    return "No sabe / No responde"
+
+                # Neutro
+                if "ni de acuerdo ni en desacuerdo" in s or "ni acuerdo ni desacuerdo" in s:
+                    return "Ni de acuerdo ni en desacuerdo"
+
+                # DESACUERDO 
+                if ("totalmente" in s and "desacuerdo" in s) or ("muy" in s and "desacuerdo" in s):
+                    return "Totalmente en desacuerdo"
+                
+                if "desacuerdo" in s:
+                    return "En desacuerdo"
+
+                # -----------------------------
+                # ACUERDO (UNIFICAR SOLO MUY + TOTALMENTE)
+                # -----------------------------
+                if ("totalmente" in s and "acuerdo" in s) or ("muy" in s and "acuerdo" in s):
+                    return "Totalmente de acuerdo"
+
+                if s == "de acuerdo" or "de acuerdo" in s:
+                    return "De acuerdo"
+
+                return "Otras respuestas"
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_jobs_scarce)
+
+        # Men should have more right to a job than women
+        elif (
+            "men should have more right to a job than women" in label_lower
+            or "men should have more right" in label_lower
+        ):
+            def normalize_men_more_right_job(v: str) -> str:
+                s = str(v).strip().lower()
+
+                # No sabe / no responde
+                if any(x in s for x in ["no sabe", "no se", "no responde", "ns/nr", "nsnr"]):
+                    return "No sabe / No responde"
+
+                # Neutro
+                if "ni de acuerdo ni en desacuerdo" in s or "ni acuerdo ni desacuerdo" in s:
+                    return "Ni de acuerdo ni en desacuerdo"
+
+                # -----------------------------
+                # DESACUERDO
+                # -----------------------------
+                # Muy + Totalmente → Totalmente
+                if ("totalmente" in s and "desacuerdo" in s) or ("muy" in s and "desacuerdo" in s):
+                    return "Totalmente en desacuerdo"
+
+                if "desacuerdo" in s:
+                    return "En desacuerdo"
+
+                # -----------------------------
+                # ACUERDO (UNIFICAR SOLO MUY + TOTALMENTE)
+                # -----------------------------
+                if ("totalmente" in s and "acuerdo" in s) or ("muy" in s and "acuerdo" in s):
+                    return "Totalmente de acuerdo"
+
+                if s == "de acuerdo" or "de acuerdo" in s:
+                    return "De acuerdo"
+
+                return "Otras respuestas"
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_men_more_right_job)
+
+        # It is children duty to take care of ill parent
+        elif (
+            "it is children duty to take care of ill parent" in label_lower
+            or "children duty to take care" in label_lower
+            or "take care of ill parent" in label_lower
+            or "cuidado continuo a sus padres" in label_lower
+            or "cuidado continuo" in label_lower
+        ):
+            def normalize_children_duty_care_parent(v: str) -> str:
+                s = str(v).strip().lower()
+
+                # No sabe / no responde
+                if any(x in s for x in ["no sabe", "no se", "no responde", "ns/nr", "nsnr"]):
+                    return "No sabe / No responde"
+
+                # Neutro
+                if "ni de acuerdo ni en desacuerdo" in s or "ni acuerdo ni desacuerdo" in s:
+                    return "Ni de acuerdo ni en desacuerdo"
+
+                # DESACUERDO (unificar muy + totalmente)
+                if ("totalmente" in s and "desacuerdo" in s) or ("muy" in s and "desacuerdo" in s):
+                    return "Totalmente en desacuerdo"
+
+                if "desacuerdo" in s:
+                    return "En desacuerdo"
+
+                # ACUERDO (unificar muy + totalmente)
+                if ("totalmente" in s and "acuerdo" in s) or ("muy" in s and "acuerdo" in s):
+                    return "Totalmente de acuerdo"
+
+                if s == "de acuerdo" or "de acuerdo" in s:
+                    return "De acuerdo"
+
+                return "Otras respuestas"
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_children_duty_care_parent)
+
+        elif categoria.strip().lower() == "important in life":
+            def normalize_important_in_life(v: str) -> str:
+                s = "" if v is None else str(v).strip().lower()
+                s = " ".join(s.split())
+
+                # OJO: "no muy importante" debe ir antes que "muy importante"
+                if "no muy importante" in s:
+                    return "No muy importante"
+                if "muy importante" in s:
+                    return "Muy importante"
+                if "bastante importante" in s:
+                    return "Bastante importante"
+                if "nada importante" in s:
+                    return "Nada importante"
+
+                return "Otras respuestas"
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_important_in_life)
+
+         # Important child qualities (multi-select: hasta cinco)
+        elif (
+            "important child qualities" in label_lower
+            or "cualidades que pueden fomentarse en el hogar" in label_lower
+            or "cualidades" in label_lower and "hasta cinco" in label_lower
+        ):
+            def normalize_child_qualities(v: str) -> str:
+                s = "" if v is None else str(v).strip().lower()
+                s = " ".join(s.split())
+
+                # No sabe / no responde
+                if any(x in s for x in ["no sabe", "no se", "no responde", "ns/nr", "nsnr"]):
+                    return "No sabe / No responde"
+
+                # Normalizaciones generales (tildes/variantes típicas)
+                s = s.replace("ó", "o").replace("á", "a").replace("é", "e").replace("í", "i").replace("ú", "u")
+                s = s.replace(" / ", "/").replace(" /", "/").replace("/ ", "/")
+                s = s.replace(" y ", " ").replace("&", " ")
+                s = " ".join(s.split())
+
+                # Mapeo a etiqueta estándar (lo que tú quieres ver en gráfica)
+                MAP = {
+                    "buenos modales": "Buenos modales",
+                    "sentido de responsabilidad": "Sentido de responsabilidad",
+                    "tolerancia y respeto hacia otros": "Tolerancia y respeto hacia otros",
+                    "tolerancia respeto hacia otros": "Tolerancia y respeto hacia otros",
+                    "obediencia": "Obediencia",
+                    "fe religiosa": "Fe religiosa",
+                    "fe religosa": "Fe religiosa",
+                    "independencia": "Independencia",
+                    "trabajo duro/dedicacion al trabajo": "Trabajo duro / dedicación al trabajo",
+                    "trabajo duro dedicacion al trabajo": "Trabajo duro / dedicación al trabajo",
+                    "determinacion/perseverancia": "Determinación / perseverancia",
+                    "determinacion perseverancia": "Determinación / perseverancia",
+                    "generosidad": "Generosidad",
+                    "altruismo": "Altruismo",
+                    "imaginacion": "Imaginación",
+                    "sentido de la economia y espiritu de ahorro": "Sentido de la economía y espíritu de ahorro",
+                    "sentido de la economia espiritu de ahorro": "Sentido de la economía y espíritu de ahorro",
+                }
+
+                if s in MAP:
+                    return MAP[s]
+
+                # fallback: capitaliza “bonito” si no estaba en el mapa
+                return str(v).strip()
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_child_qualities)
+
+        # Future changes – Greater respect for authority
+        elif (
+            "greater respect for authority" in label_lower
+            or ("future changes" in label_lower and "respect for authority" in label_lower)
+        ):
+            def normalize_future_respect_authority(v: str) -> str:
+                s = "" if v is None else str(v).strip().lower()
+                s = " ".join(s.split())
+
+                # No sabe / no responde
+                if any(x in s for x in ["no sabe", "no se", "no responde", "ns/nr", "nsnr"]):
+                    return "No sabe / No responde"
+
+                # Normalizar tildes mínimas (por si viene "importaría")
+                s = (
+                    s.replace("á", "a").replace("é", "e").replace("í", "i")
+                     .replace("ó", "o").replace("ú", "u")
+                )
+
+                # Categorías
+                if s in ("bueno", "bien", "good"):
+                    return "Bueno"
+
+                if s in ("malo", "mal", "bad"):
+                    return "Malo"
+
+                # "No me importa"
+                if ("no me importa" in s) or (s == "no importa") or ("doesnt matter" in s) or ("doesn't matter" in s):
+                    return "No me importa"
+
+                # "No le importaría"
+                if ("no le importaria" in s) or ("no le importaria" in s) or ("wouldnt mind" in s) or ("wouldn't mind" in s):
+                    return "No me importa"
+
+                return "Otras respuestas"
+
+            df_spec = df_spec.copy()
+            df_spec[COL_RESPUESTA] = df_spec[COL_RESPUESTA].apply(normalize_future_respect_authority)
+
+
         # -------------------------------
         # RESUMEN Y GRÁFICA
         # -------------------------------
