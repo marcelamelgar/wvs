@@ -7,6 +7,7 @@ import unicodedata
 from pathlib import Path
 from typing import List
 from urllib.parse import quote_plus, unquote_plus
+from streamlit.components.v1 import html as st_html
 
 import pandas as pd
 import plotly.express as px
@@ -664,6 +665,35 @@ def render_card_menu(agrupaciones: List[str]):
         """
         with col:
             st.markdown(card_html, unsafe_allow_html=True)
+
+# ==========================================
+# HTML DE RESUMEN
+# ========================================== 
+
+HTML_MAP_PATH = Path(__file__).parent / "map_guatemala_interactivo_dual_2020_2025.html"
+# (si lo tienes en otra ruta, ajusta el Path)
+
+def render_dual_map_for_agr(agrupacion: str, height: int = 780):
+    raw = HTML_MAP_PATH.read_text(encoding="utf-8")
+
+    # 1) Forzar la agrupación actual (en el HTML original es: let currentAgr = AGRUPACIONES[0] || "";)
+    raw = raw.replace(
+        'let currentAgr = AGRUPACIONES[0] || "";',
+        f'let currentAgr = {json.dumps(agrupacion)};'
+    )
+
+    # 2) Ocultar el label y el select de agrupación (dejamos Cat/Esp para que sigan funcionando)
+    raw = raw.replace(
+        "</style>",
+        """
+        label[for="selAgr"], #selAgr { display:none !important; }
+        </style>
+        """,
+        1
+    )
+
+    # 3) Renderizar dentro de Streamlit
+    st_html(raw, height=height, scrolling=False)
 
 # ==========================================
 # OVERVIEW DEMOGRÁFICO
@@ -1808,6 +1838,60 @@ def main():
 
         if selected_agr == "Demographic and Socioeconomic":
             render_demographic_overview()
+        
+        st.markdown(
+            "<h3 style='margin-bottom:6px;'>Distribución de resultados por departamento</h3>",
+            unsafe_allow_html=True
+        )
+
+        # HTML del mapa
+        render_dual_map_for_agr(selected_agr, height=780)
+
+        with st.container():
+            st.markdown(
+                """
+                <div style="
+                    margin-top: 18px;
+                    margin-bottom: 14px;
+                    padding: 14px 18px;
+                    border-radius: 16px;
+                    background: rgba(224,242,254,0.65);
+                    border: 1px solid rgba(125,211,252,0.65);
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                    max-width: 780px;
+                ">
+                    <div style="
+                        width: 42px;
+                        height: 42px;
+                        border-radius: 14px;
+                        background: white;
+                        border: 1px solid rgba(203,213,225,0.9);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 18px;
+                        box-shadow: 0 6px 16px rgba(15,23,42,0.12);
+                    ">
+                        🔎
+                    </div>
+                    <div style="line-height: 1.25;">
+                        <div style="color:#0f172a; font-weight:700; font-size:1.02rem;">
+                            Ver detalle
+                        </div>
+                        <div style="color:#334155; font-weight:500; font-size:0.95rem;">
+                            Preguntas y respuestas específicas mostradas abajo.
+                        </div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+
+
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
 
         categorias = load_categorias(selected_agr)
 
